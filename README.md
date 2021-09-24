@@ -8,6 +8,7 @@ Getting Setup
 
 
 ```console
+# Tested on Python 3.8.3
 # A virtual environment is recommended.
 
 # Install required packages
