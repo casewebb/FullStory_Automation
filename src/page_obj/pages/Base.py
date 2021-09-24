@@ -61,9 +61,9 @@ class BasePage(object):
     def slow_type(self, element, text):
         for char in text:
             element.send_keys(char)
-            self.wait(.1)
+            time.sleep(.1)
 
     # Mainly used to wait long enough for the bundle API to be sent again
-    def wait(self, seconds):
+    def wait_for_bundle(self, seconds):
         print('Waiting ', seconds, ' seconds to ensure new bundle is present.')
         time.sleep(seconds)
