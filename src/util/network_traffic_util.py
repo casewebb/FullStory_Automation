@@ -1,13 +1,28 @@
 import json
+import time
 from typing import List
 
 from seleniumwire import webdriver
 from seleniumwire.request import Request
 
+MAX_RETRY = 15
 
-# Retrieve all network requests from the Chrome session
+
+# Retrieve all FS network requests from the Chrome session
 def get_all_fs_bundle_requests(driver: webdriver):
-    return list(filter(lambda request: request.path == '/rec/bundle', driver.requests))
+    c = len(list(filter(lambda request: request.path == '/rec/bundle', driver.requests)))
+
+    poll_c = 1
+    while poll_c < MAX_RETRY:
+        print('Waiting for new bundle to be present. (', poll_c, '/', MAX_RETRY, ')')
+        req = list(filter(lambda request: request.path == '/rec/bundle', driver.requests))
+        if len(req) > c:
+            print('Found new bundle.')
+            return req
+        poll_c += 1
+        time.sleep(1)
+
+    raise Exception('No new bundle appeared within ' + str(MAX_RETRY) + ' seconds.')
 
 
 # Check whether there is an existing bundle containing an event
@@ -20,7 +35,7 @@ def is_product_added_evnt_present(requests: List[Request], fruit):
             if len(args) > 0 and args[0] == 'Product Added':
                 prod_add_data = json.loads(args[1])
                 if prod_add_data['displayName_str'] == fruit:
-                    print('Found event ', evt, ' for addition of ', fruit)
+                    print('Validated event ', evt, ' for addition of ', fruit)
                     return True
     return False
 
@@ -33,7 +48,7 @@ def is_user_going_to_route_evnt_present(requests: List[Request], route):
         for evt in data['Evts']:
             args = evt['Args']
             if len(args) > 0 and args[0] == 'https://fruitshoppe.firebaseapp.com/#/' + route:
-                print('Found event ', evt, ' for navigation to ', route)
+                print('Validated event ', evt, ' for navigation to ', route)
                 return True
     return False
 
@@ -52,7 +67,7 @@ def is_order_completed_evnt_present(requests: List[Request], fruits):
                     if fruit['name_str'] in fruits:
                         found += 1
                 if found == len(fruits):
-                    print('Found event ', evt, ' for order completion with fruits ', str(fruits))
+                    print('Validated event ', evt, ' for order completion with fruits ', str(fruits))
                     return True
     return False
 
@@ -64,13 +79,17 @@ def is_sequential_bundles(requests: List[Request]):
         req_seq = request.params['Seq']
         if str(seq) != req_seq:
             return False
-        if seq > 1:
+        if seq == 1:
+            param_prev_bundle_time = request.params['PrevBundleTime']
+            print('Bundle Seq ', seq, ' - PreviousBundleTime Found in Request Param : ', param_prev_bundle_time,
+                  ' - BundleTime From Previous Bundle Response : N/A')
+        else:
             param_prev_bundle_time = request.params['PrevBundleTime']
             previous_bundle_response_bundle_time = json.loads(requests[requests.index(request) - 1].response.body)[
                 'BundleTime']
             if param_prev_bundle_time != str(previous_bundle_response_bundle_time):
                 return False
-            print('Bundle Seq ', seq, ' - Bundle Time Found in Request Param : ',
+            print('Bundle Seq ', seq, ' - PreviousBundleTime Found in Request Param : ',
                   param_prev_bundle_time,
                   ' - BundleTime From Previous Bundle Response : ',
                   previous_bundle_response_bundle_time)
