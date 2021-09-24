@@ -63,7 +63,3 @@ class BasePage(object):
             element.send_keys(char)
             time.sleep(.1)
 
-    # Mainly used to wait long enough for the bundle API to be sent again
-    def wait_for_bundle(self, seconds):
-        print('Waiting ', seconds, ' seconds to ensure new bundle is present.')
-        time.sleep(seconds)
