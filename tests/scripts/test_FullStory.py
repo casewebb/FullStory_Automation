@@ -1,5 +1,3 @@
-import time
-
 from src.WebdriverSetup import WebDriverSetup
 from src.page_obj.pages import Landing, Market, MyCart, Checkout
 from src.util import network_traffic_util
@@ -17,7 +15,7 @@ class FullStoryTest(WebDriverSetup):
         landing_page.go_to_url('https://fruitshoppe.firebaseapp.com')
         landing_page.click_link_by_text(landing_page.MARKET_LINK)
 
-        time.sleep(10)
+        landing_page.wait(10)
         requests = network_traffic_util.get_all_fs_bundle_requests(driver)
         self.assertTrue(network_traffic_util.is_user_going_to_market_evnt_present(requests),
                         msg='No event for market navigation found.')
@@ -27,7 +25,7 @@ class FullStoryTest(WebDriverSetup):
         market_page.search_and_add_fruit_to_cart('Oranges de Florida')
 
         # Validate FS Add Product Event
-        time.sleep(10)
+        market_page.wait(10)
         requests = network_traffic_util.get_all_fs_bundle_requests(driver)
         self.assertTrue(network_traffic_util.is_product_added_evnt_present(requests, 'Dragon Fruit'))
 
@@ -41,8 +39,10 @@ class FullStoryTest(WebDriverSetup):
         checkout_page.fill_out_address("shipping")
         checkout_page.fill_out_payment()
         checkout_page.click_link_by_text(checkout_page.PURCHASE_LINK)
+
+        # Validate that all bundles through the test case were sent sequentially
+        # and bundletime chaining aligns
         requests = network_traffic_util.get_all_fs_bundle_requests(driver)
         self.assertTrue(network_traffic_util.is_sequential_bundles(requests))
 
-        time.sleep(10)
 

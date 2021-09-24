@@ -59,3 +59,7 @@ class BasePage(object):
         for char in text:
             element.send_keys(char)
             time.sleep(.1)
+
+    # Mainly used to wait long enough for the bundle API to be sent again
+    def wait(self, seconds):
+        time.sleep(seconds)
