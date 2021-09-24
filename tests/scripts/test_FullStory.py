@@ -17,22 +17,34 @@ class FullStoryTest(WebDriverSetup):
 
         landing_page.wait(10)
         requests = network_traffic_util.get_all_fs_bundle_requests(driver)
-        self.assertTrue(network_traffic_util.is_user_going_to_market_evnt_present(requests),
+        self.assertTrue(network_traffic_util.is_user_going_to_route_evnt_present(requests, "market"),
                         msg='No event for market navigation found.')
 
         # Market page interactions
         market_page.add_fruit_to_cart('Dragon Fruit')
         market_page.search_and_add_fruit_to_cart('Oranges de Florida')
+        fruits = ['Dragon Fruit', 'Oranges de Florida']
 
-        # Validate FS Add Product Event
+        # Validate FS Add Product Events
         market_page.wait(10)
         requests = network_traffic_util.get_all_fs_bundle_requests(driver)
-        self.assertTrue(network_traffic_util.is_product_added_evnt_present(requests, 'Dragon Fruit'))
+        self.assertTrue(network_traffic_util.is_product_added_evnt_present(requests, 'Dragon Fruit'),
+                        msg="No event for Dragon Fruit added to cart found.")
+        self.assertTrue(network_traffic_util.is_product_added_evnt_present(requests, 'Oranges de Florida'),
+                        msg="No event for Oranges de Florida added to cart found.")
 
         market_page.click_link_by_text(market_page.MY_CART_LINK)
+        market_page.wait(10)
+        requests = network_traffic_util.get_all_fs_bundle_requests(driver)
+        self.assertTrue(network_traffic_util.is_user_going_to_route_evnt_present(requests, "cart"),
+                        msg='No event for cart navigation found.')
 
         # Cart Page interactions
         my_cart_page.click_link_by_text(my_cart_page.CHECKOUT_LINK)
+        my_cart_page.wait(10)
+        requests = network_traffic_util.get_all_fs_bundle_requests(driver)
+        self.assertTrue(network_traffic_util.is_user_going_to_route_evnt_present(requests, "checkout"),
+                        msg='No event for checkout navigation found.')
 
         # Checkout Page interactions
         checkout_page.fill_out_address("billing")
@@ -40,9 +52,13 @@ class FullStoryTest(WebDriverSetup):
         checkout_page.fill_out_payment()
         checkout_page.click_link_by_text(checkout_page.PURCHASE_LINK)
 
+        # Validate order completed event with all added fruits
+        checkout_page.wait(10)
+        requests = network_traffic_util.get_all_fs_bundle_requests(driver)
+        self.assertTrue(network_traffic_util.is_order_completed_evnt_present(requests, fruits))
+
         # Validate that all bundles through the test case were sent sequentially
         # and bundletime chaining aligns
-        requests = network_traffic_util.get_all_fs_bundle_requests(driver)
         self.assertTrue(network_traffic_util.is_sequential_bundles(requests))
 
 

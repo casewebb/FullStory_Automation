@@ -8,8 +8,8 @@ from webdriver_manager.utils import ChromeType
 
 
 # This is something I would never have for general UI test automation
-# but to test human-type interactions being captured by FullStory's script
-# this feels necessary. Without it the script completes in just several seconds so only 1 or 2 bundles are sent.
+# but to test human-type UI interactions being captured by FullStory's script
+# this feels necessary.
 class EventListener(AbstractEventListener):
     def after_find(self, by, value, driver):
         time.sleep(1)

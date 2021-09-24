@@ -7,6 +7,7 @@ class MarketPage(BasePage):
                            '@ng-click="addToCart(fruit)"]'
 
     def add_fruit_to_cart(self, fruit):
+        print('Adding ', fruit, ' to cart.')
         self.driver.find_element_by_xpath(self.fruit_add_cart_xpath.format(fruit=fruit)).click()
 
     def search_and_add_fruit_to_cart(self, fruit):

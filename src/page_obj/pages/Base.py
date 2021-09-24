@@ -17,13 +17,16 @@ class BasePage(object):
         self.driver.get(url)
 
     def click_link_by_text(self, text):
+        print('Clicking ', text, ' link.')
         self.driver.find_element_by_xpath(Locator.link_by_text.format(link_text=text)).click()
 
     def send_text_by_placeholder(self, placeholder, text):
+        print('Entering text ', text, ' into field with placeholder ', placeholder)
         ele = self.driver.find_element_by_xpath(Locator.input_by_placeholder.format(placeholder_text=placeholder))
         self.slow_type(ele, text)
 
     def send_text_by_section_and_label(self, section, label, text):
+        print('Entering text ', text, ' to field in section ', section, ' with label ', label)
         ele = self.driver.find_element_by_xpath(Locator.input_by_section_and_label
                                                 .format(section_text=section, label_text=label))
         self.slow_type(ele, text)
@@ -58,8 +61,9 @@ class BasePage(object):
     def slow_type(self, element, text):
         for char in text:
             element.send_keys(char)
-            time.sleep(.1)
+            self.wait(.1)
 
     # Mainly used to wait long enough for the bundle API to be sent again
     def wait(self, seconds):
+        print('Waiting ', seconds, ' seconds to ensure new bundle is present.')
         time.sleep(seconds)
