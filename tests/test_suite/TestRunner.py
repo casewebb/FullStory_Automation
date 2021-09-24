@@ -1,4 +1,5 @@
 from unittest import TestLoader, TestSuite, TextTestRunner
+
 from tests.scripts.test_FullStory import FullStoryTest
 
 if __name__ == "__main__":

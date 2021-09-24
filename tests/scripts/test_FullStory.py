@@ -1,8 +1,8 @@
+import unittest
+
 from src.WebdriverSetup import WebDriverSetup
 from src.page_obj.pages import Landing, Market, MyCart, Checkout
 from src.util import network_traffic_util
-
-import unittest
 
 
 class FullStoryTest(WebDriverSetup):
